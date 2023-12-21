@@ -34,10 +34,10 @@
                 if (movementState.up && y > 0) {
                     y -= 10;
                 }
-                if (movementState.right && x < 1820) {
+                if (movementState.right && x < window.innerWidth - 100) {
                     x += 10;
                 }
-                if (movementState.down && y < 870) {
+                if (movementState.down && y < window.innerHeight - 100) {
                     y += 10;
                 }
 
