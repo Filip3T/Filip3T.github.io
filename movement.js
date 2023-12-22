@@ -7,10 +7,10 @@ function update(x, y) {
         "px; bottom: " + y + "px;'>";
 }
 
-var requestID = null;
-var speed = 10; // Adjust the speed as needed
 var x = window.innerWidth - 100;
 var y = 0;
+var moveInterval;
+var speed = 12; //Adjust as you want (it's slow now)
 var movementState = {
     left: false,
     up: false,
@@ -18,45 +18,49 @@ var movementState = {
     down: false
 };
 
-function move() {
-    var dx = 0;
-    var dy = 0;
+function startMove() {
+    moveInterval = setInterval(function () {
+        var dx = 0;
+        var dy = 0;
 
-    if (movementState.left) {
-        dx -= 1;
-    }
-    if (movementState.up) {
-        dy -= 1;
-    }
-    if (movementState.right) {
-        dx += 1;
-    }
-    if (movementState.down) {
-        dy += 1;
-    }
+        if (movementState.left) {
+            dx -= 1;
+        }
+        if (movementState.up) {
+            dy -= 1;
+        }
+        if (movementState.right) {
+            dx += 1;
+        }
+        if (movementState.down) {
+            dy += 1;
+        }
 
-    // Normalize the vector
-    var length = Math.sqrt(dx * dx + dy * dy);
-    if (length !== 0) {
-        dx /= length;
-        dy /= length;
-    }
 
-    x += dx * speed;
-    y += dy * speed;
+        var length = Math.sqrt(dx * dx + dy * dy);
+        if (length !== 0) {
+            dx /= length;
+            dy /= length;
+        }
 
-    // Ensure the new position is within the boundaries
-    x = Math.max(0, Math.min(x, window.innerWidth - 100));
-    y = Math.max(0, Math.min(y, window.innerHeight - 100));
+        x += dx * speed;
+        y += dy * speed;
 
-    update(x, y);
 
-    // Continue the animation
-    requestAnimationFrame(move);
+        x = Math.max(window.innerWidth / 5 + 10, Math.min(x, window.innerWidth - 100));
+        y = Math.max(0, Math.min(y, window.innerHeight - 100));
+
+        update(x, y);
+    }, 20);
+}
+
+function stopMove() {
+    clearInterval(moveInterval);
+    moveInterval = null;
 }
 
 document.addEventListener('keydown', function (event) {
-    if (event.keyCode == 39) { // Left
+    if (event.keyCode == 39) {        // Left
         movementState.left = true;
     } else if (event.keyCode == 40) { // Up
         movementState.up = true;
@@ -66,14 +70,16 @@ document.addEventListener('keydown', function (event) {
         movementState.down = true;
     }
 
-    // Start the animation loop if not already running
+    if (!moveInterval) {
+        startMove();
+    }
     if (!requestID) {
         requestID = requestAnimationFrame(move);
     }
 });
 
 document.addEventListener('keyup', function (event) {
-    if (event.keyCode == 39) { // Left
+    if (event.keyCode == 39) {        // Left
         movementState.left = false;
     } else if (event.keyCode == 40) { // Up
         movementState.up = false;
@@ -83,9 +89,8 @@ document.addEventListener('keyup', function (event) {
         movementState.down = false;
     }
 
-    // Stop the animation loop if no keys are pressed
     if (!(movementState.left || movementState.up || movementState.right || movementState.down)) {
-        cancelAnimationFrame(requestID);
-        requestID = null;
+        stopMove();
     }
+
 });
